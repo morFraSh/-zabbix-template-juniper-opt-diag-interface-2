@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>4.4</version>
+    <date>2020-04-06T08:50:34Z</date>
+    <groups>
+        <group>
+            <name>Juniper</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Juniper-optical-interface_rpc</template>
+            <name>Juniper-optical-interface_rpc</name>
+            <description>Juniper SNMPv2 diagnostics optics discovery interface&#13;
+&#13;
+netconf script use: interface_diag_opt.py&#13;
+&#13;
+Discovery all physical interfaces with ddm but not et *</description>
+            <groups>
+                <group>
+                    <name>Juniper</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Juniper Optical Interfaces</name>
+                </application>
+                <application>
+                    <name>Juniper Optical Interfaces Bias</name>
+                </application>
+                <application>
+                    <name>Juniper Optical Interfaces Laser Power</name>
+                </application>
+                <application>
+                    <name>Juniper Optical Interfaces Temp</name>
+                </application>
+                <application>
+                    <name>Juniper Optical Interfaces Voltage</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>RPC Optical Interfaces Discovery</name>
+                    <type>EXTERNAL</type>
+                    <key>interface_diag_opt.py[&quot;netconf-access&quot;, &quot;/usr/lib/zabbix/externalscripts/rsa&quot;, {HOST.CONN}, {HOST.HOST}, &quot;10&quot;]</key>
+                    <delay>0;60/1-1,03:00-03:01;60/4-4,03:00-03:01</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Juniper Optical Interfaces</name>
+                        </application>
+                    </applications>
+                    <preprocessing>
+                        <step>
+                            <type>DISCARD_UNCHANGED_HEARTBEAT</type>
+                            <params>1d</params>
+                        </step>
+                    </preprocessing>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Diagnostics Optics Discovery</name>
+                    <type>SNMPV2</type>
+                    <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                    <snmp_oid>discovery[{#IFOPERSTATUS},1.3.6.1.2.1.2.2.1.8,{#IFADMINSTATUS},1.3.6.1.2.1.2.2.1.7,{#IFALIAS},1.3.6.1.2.1.31.1.1.1.18,{#IFNAME},1.3.6.1.2.1.31.1.1.1.1,{#IFTYPE},1.3.6.1.2.1.2.2.1.3]</snmp_oid>
+                    <key>net.if.optical.discovery</key>
+                    <delay>0;60/1-1,04:00-04:01;60/4-4,04:00-04:01</delay>
+                    <filter>
+                        <evaltype>AND</evaltype>
+                        <conditions>
+                            <condition>
+                                <macro>{#IFTYPE}</macro>
+                                <value>6</value>
+                                <formulaid>E</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#IFOPERSTATUS}</macro>
+                                <value>(1|3|4|5|7)</value>
+                                <formulaid>D</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#IFADMINSTATUS}</macro>
+                                <value>(1|3)</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#IFNAME}</macro>
+                                <value>{$DIAG_OPT_FILTER}</value>
+                                <formulaid>B</formulaid>
+                            </condition>
+                            <condition>
+                                <macro>{#IFNAME}</macro>
+                                <value>{$DIAG_OPT_FILTER_NOT_MATCHES}</value>
+                                <operator>NOT_MATCHES_REGEX</operator>
+                                <formulaid>C</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <lifetime>6h</lifetime>
+                    <description>discovery[{#IFOPERSTATUS},1.3.6.1.2.1.2.2.1.8,{#IFADMINSTATUS},1.3.6.1.2.1.2.2.1.7,{#IFALIAS},1.3.6.1.2.1.31.1.1.1.18,{#IFNAME},1.3.6.1.2.1.31.1.1.1.1,{#IFDESCR},1.3.6.1.2.1.2.2.1.2,{#IFTYPE},1.3.6.1.2.1.2.2.1.3,{#jnxDomCurrentTable},1.3.6.1.4.1.2636.3.60.1.1.1]&#13;
+#jnxDomCurrentLaneEntry,1.3.6.1.4.1.2636.3.60.1.2.1.1&#13;
+JNXDOMCURRENTLANERXLASERPOWER&#13;
+jnxDomCurrentLaneRxLaserPower&#13;
+&#13;
+,{#JNXDOMCURRENTLANERXLASERPOWER},1.3.6.1.4.1.2636.3.60.1.2.1.1.6</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): Module temp high alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.21.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentModuleTempHA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>°C</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Temp</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): Module temp low alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.22.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentModuleTempLA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>°C</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Temp</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): Module temp</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.8.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentModuleTemp[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>3m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>°C</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Temp</name>
+                                </application>
+                            </applications>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): RxLaserPower high alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.9.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentRxLaserPowerHA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>dbm</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Laser Power</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.01</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}):  RxLaserPower low alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.10.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentRxLaserPowerLA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>dbm</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Laser Power</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.01</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): RxLaserPower</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.5.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}]</key>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>dbm</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Laser Power</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.01</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): TxLaserPower high alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.17.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentTxLaserOutputPowerHA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>dbm</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Laser Power</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.01</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}):  TxLaserPower low alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.18.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentTxLaserOutputPowerLA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>dbm</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Laser Power</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.01</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): TxLaserOutputPower</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.7.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}]</key>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>dbm</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Laser Power</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.01</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): Module bias</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.6.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentTxModuleBias[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>3m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>mA</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Bias</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): Voltage high alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.26.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentVHA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>V</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Voltage</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): Voltage low alarm</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.27.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentVLA[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>5m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>V</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Voltage</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Interface {#IFNAME}({#IFALIAS}): Voltage</name>
+                            <type>SNMPV2</type>
+                            <snmp_community>{$SNMP_COMMUNITY}</snmp_community>
+                            <snmp_oid>1.3.6.1.4.1.2636.3.60.1.1.1.1.25.{#SNMPINDEX}</snmp_oid>
+                            <key>jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}]</key>
+                            <delay>3m</delay>
+                            <history>30d</history>
+                            <trends>100d</trends>
+                            <value_type>FLOAT</value_type>
+                            <units>V</units>
+                            <applications>
+                                <application>
+                                    <name>Juniper Optical Interfaces Voltage</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerHA[ifDescr.{#SNMPINDEX}].last()}</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerHA[ifDescr.{#SNMPINDEX}].last()}</recovery_expression>
+                            <name>RxLaserPower High Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerLA[ifDescr.{#SNMPINDEX}].last()} or {Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}=0</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerLA[ifDescr.{#SNMPINDEX}].last()} and {Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&lt;&gt;0</recovery_expression>
+                            <name>RxLaserPower Low Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].min(5m)}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerLA[ifDescr.{#SNMPINDEX}].last()}*0.9 or {Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}=0</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].min(5m)}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerLA[ifDescr.{#SNMPINDEX}].last()}*0.9 and {Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&lt;&gt;0</recovery_expression>
+                            <name>RxLaser power lower 90% of Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                            <dependencies>
+                                <dependency>
+                                    <name>RxLaserPower Low Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                                    <expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerLA[ifDescr.{#SNMPINDEX}].last()} or {Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}=0</expression>
+                                    <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPowerLA[ifDescr.{#SNMPINDEX}].last()} and {Juniper-optical-interface_rpc:jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}].last()}&lt;&gt;0</recovery_expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentModuleTemp[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentModuleTempHA[ifDescr.{#SNMPINDEX}].last()}</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentModuleTemp[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentModuleTempHA[ifDescr.{#SNMPINDEX}].last()}</recovery_expression>
+                            <name>Temp High Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentModuleTemp[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentModuleTempHA[ifDescr.{#SNMPINDEX}].last()}*0.8</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentModuleTemp[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentModuleTempHA[ifDescr.{#SNMPINDEX}].last()}*0.8</recovery_expression>
+                            <name>Temp Higher 80% of Alarm  - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>AVERAGE</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerHA[ifDescr.{#SNMPINDEX}].last()}</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerHA[ifDescr.{#SNMPINDEX}].last()}</recovery_expression>
+                            <name>TxLaserPower High Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerLA[ifDescr.{#SNMPINDEX}].last()} or {Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}=0</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerLA[ifDescr.{#SNMPINDEX}].last()} and {Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&lt;&gt;0</recovery_expression>
+                            <name>TxLaserPower Low Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].min(5m)}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerLA[ifDescr.{#SNMPINDEX}].last()}*0.9 or {Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}=0</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].min(5m)}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerLA[ifDescr.{#SNMPINDEX}].last()}*0.9 and {Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&lt;&gt;0</recovery_expression>
+                            <name>TxLaser power lower 90% of Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                            <dependencies>
+                                <dependency>
+                                    <name>TxLaserPower Low Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                                    <expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerLA[ifDescr.{#SNMPINDEX}].last()} or {Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}=0</expression>
+                                    <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPowerLA[ifDescr.{#SNMPINDEX}].last()} and {Juniper-optical-interface_rpc:jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}].last()}&lt;&gt;0</recovery_expression>
+                                </dependency>
+                            </dependencies>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentVHA[ifDescr.{#SNMPINDEX}].last()}</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentVHA[ifDescr.{#SNMPINDEX}].last()}</recovery_expression>
+                            <name>Voltage High Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentVHA[ifDescr.{#SNMPINDEX}].last()}*0.97</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentVHA[ifDescr.{#SNMPINDEX}].last()}*0.97</recovery_expression>
+                            <name>Voltage High Warn - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>AVERAGE</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentVLA[ifDescr.{#SNMPINDEX}].last()}</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentVLA[ifDescr.{#SNMPINDEX}].last()}</recovery_expression>
+                            <name>Voltage Low Alarm - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                        <trigger_prototype>
+                            <expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&lt;{Juniper-optical-interface_rpc:jnxDomCurrentVLA[ifDescr.{#SNMPINDEX}].last()}*0.97</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{Juniper-optical-interface_rpc:jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}].last()}&gt;{Juniper-optical-interface_rpc:jnxDomCurrentVLA[ifDescr.{#SNMPINDEX}].last()}*0.97</recovery_expression>
+                            <name>Voltage Low Warn - {#IFNAME} - ({#IFALIAS})</name>
+                            <opdata>Current/Alarm: {ITEM.LASTVALUE1}/{ITEM.LASTVALUE2}</opdata>
+                            <priority>AVERAGE</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Interface {#IFNAME} - ({#IFALIAS}): Bias</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>1A7C11</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentTxModuleBias[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Interface {#IFNAME} - ({#IFALIAS}): Rx/TX Power</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>42A5F5</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>43A047</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentTxLaserOutputPower[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Interface {#IFNAME} - ({#IFALIAS}): Temp</name>
+                            <graph_items>
+                                <graph_item>
+                                    <drawtype>DASHED_LINE</drawtype>
+                                    <color>FF0000</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentModuleTempHA[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>BOLD_LINE</drawtype>
+                                    <color>00FF00</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentModuleTemp[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <drawtype>DASHED_LINE</drawtype>
+                                    <color>00FFFF</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentModuleTempLA[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Interface {#IFNAME} - ({#IFALIAS}): Voltage</name>
+                            <graph_items>
+                                <graph_item>
+                                    <drawtype>DASHED_LINE</drawtype>
+                                    <color>FF4000</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentVHA[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>BOLD_LINE</drawtype>
+                                    <color>43A047</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <drawtype>DASHED_LINE</drawtype>
+                                    <color>FFFF00</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentVLA[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Interface {#IFNAME} - ({#IFALIAS}): Volt and Temp and RxPower</name>
+                            <graph_items>
+                                <graph_item>
+                                    <color>F63100</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentModuleTemp[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>2774A4</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentVoltage[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>4000FF</color>
+                                    <calc_fnc>ALL</calc_fnc>
+                                    <item>
+                                        <host>Juniper-optical-interface_rpc</host>
+                                        <key>jnxDomCurrentRxLaserPower[ifDescr.{#SNMPINDEX}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$DIAG_OPT_FILTER}</macro>
+                    <value>^xe.*|^ge.*|^et.*</value>
+                </macro>
+                <macro>
+                    <macro>{$DIAG_OPT_FILTER_NOT_MATCHES}</macro>
+                    <value>et.*</value>
+                </macro>
+                <macro>
+                    <macro>{$DIAG_OPT_FILTER_NOT_MATCHES_HOST}</macro>
+                    <description>Интерфейсы без значений ddm</description>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
